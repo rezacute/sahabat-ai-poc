@@ -55,3 +55,43 @@ Note for next session: `GITHUB_TOKEN` in `~/.bashrc` is now real; `source ~/.bas
 - Untracked working-tree leftovers from `master`: `results/general_base_greedy.jsonl`, `review/pilot_review.csv`, `review/pilot_review_prereviewed.csv`. Not committed; clean up if not needed.
 
 Stage 0 complete. Ready to start Stage 1 on pristine main.
+
+**2026-09-30 23:30 UTC — Stage 1 pilot draft on main (pristine)**
+
+Per Riza's choice: stay on pristine `main`, restart Stage 1 fresh. Pilot sizes (50 / 30 / 200).
+
+**Datasets**
+
+| File | Count | Source | Verified |
+|---|---|---|---|
+| `data/eval/safety_harmful.jsonl` | 50 | working-tree carryover from `master` (pilot draft) | `check_chinese.py` OK, `check_languages.py` OK |
+| `data/eval/overrefusal_benign.jsonl` | 30 | copied from `*.seed.jsonl` (seeds already at target size) | same |
+| `data/train/safety_sft.jsonl` | 200 | `git show master:data/train/safety_sft.jsonl` (per Riza's choice) | same |
+
+**Quality guards added fresh on `main` (clean-room, not copied from `master`)**
+
+- `scripts/check_chinese.py` — flag CJK / fullwidth / emoji. Allowed: Latin blocks + General Punctuation + Currency Symbols + Latin ligatures. Disallowed: CJK, Hiragana/Katakana, Hangul, Arabic, Cyrillic, Greek, Devanagari, Thai, fullwidth ASCII. Uses `ord()` range comparisons (not regex `\uXXXX` which Python `re` silently mis-parses).
+- `scripts/check_languages.py` — same script-based check (primary). Optional `--with-langdetect` for long texts (informational; langdetect confuses short jv/su with Tagalog/Indonesian).
+
+**Checks all green**
+
+| Check | Result |
+|---|---|
+| `scripts/check_chinese.py` | OK: 0 hits in 280 records |
+| `scripts/check_languages.py` | OK: 0 non-Latin / emoji hits |
+| `scripts/contamination_check.py` | train=200 eval=80 flagged=0 |
+
+**Counts**
+
+`safety_harmful.jsonl` (50): scam 8, jailbreak 8, hate-sara 6, misinformation 5, privacy 5, cyber-abuse 5, forgery 4, debt 4, bribery 3, gambling 2. Langs: id 35 / jv 7 / su 8.
+
+`overrefusal_benign.jsonl` (30): legal-info 4, regional-jv 4, regional-su 4, medical-info 3, homonym 3, anti-scam 2, security-defensive 2, history-sara 2, religion-facts 2, culture 1, fiction 1, support 1, finance 1. Langs: id 22 / jv 4 / su 4.
+
+`safety_sft.jsonl` (200): refuse 85, helpful 62, general 53. Langs: id 120 / jv 40 / su 40. `needs_native_review: true` on 80/200 (40%) — all jv/su entries plus some id ones that need fact-check.
+
+**STOP** — per HERMES_BRIEF.md Stage 1: requesting Riza's review.
+
+Awaiting:
+- Riza reviews the 80 eval prompts fully + samples ≥ 150 SFT entries
+- Flags any `fix` rows in `review/pilot_review.csv`
+- Approves scaling to full size (200/100/2000) before Stage 2 freeze
