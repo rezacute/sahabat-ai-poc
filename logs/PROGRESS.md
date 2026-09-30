@@ -41,3 +41,17 @@ Note for next session: `GITHUB_TOKEN` in `~/.bashrc` is now real; `source ~/.bas
   - `curl /api/whoami-v2` → 200, name `riza-alaudin`, model `GoToCompany/gemma2-9b-cpt-sahabatai-v1-instruct` accessible (HTTP 200, not gated, 13 sibling files)
 
 **Lesson recorded:** never use `read_file(offset,limit)` + `patch` to edit `~/.bashrc` while it contains real tokens — the display layer redacts tokens on read, and any `new_string` constructed from that display will replace bytes with the placeholder. Use `python3` regex sub for credential-line edits.
+
+**2026-09-30 22:55 UTC — switch to main, Stage 0 verified**
+
+- Switched from `master` to `main` (pristine scaffold) per Riza's choice.
+- `master` branch retained locally with full v3 work; uncommitted v3 SFT edits stashed as `v3 SFT edits (uncommitted)`.
+- Re-verified Stage 0 env (carried over from `master`'s stage 0 run; venvs persist on disk):
+  - nvidia-smi: NVIDIA RTX PRO 6000 Blackwell Server Edition, 595.71.05, 97887 MiB
+  - `.venv-train`: torch 2.11.0+cu128, compute capability (12, 0) ✓
+  - `.venv-infer`: torch 2.13.0+cu130, vllm 0.30.0
+  - `third_party/SEA-HELM`: cloned
+- `setup.sh` not re-run (no need; venvs are functional).
+- Untracked working-tree leftovers from `master`: `results/general_base_greedy.jsonl`, `review/pilot_review.csv`, `review/pilot_review_prereviewed.csv`. Not committed; clean up if not needed.
+
+Stage 0 complete. Ready to start Stage 1 on pristine main.
