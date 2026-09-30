@@ -1,0 +1,4 @@
+vllm          # use a recent release built for CUDA 12.8+ (Blackwell)
+openai>=1.40  # OpenAI-compatible client for the judge (MiniMax etc.)
+numpy
+pyyaml

@@ -1,0 +1,13 @@
+# Harmful prompts and anything that contains model answers to them stay local only.
+data/eval/safety_harmful*.jsonl
+results/responses_*.jsonl
+results/judged_*.jsonl
+results/audit_*.csv
+
+# Large or machine-specific
+runs/
+merged/
+third_party/
+.venv*/
+results/seahelm_*/
+__pycache__/

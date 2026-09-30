@@ -1,0 +1,7 @@
+{
+  "_comment": "Copy to results/capability.json and fill in SEA-HELM per-language scores. Use a list if you ran several seeds, a single number otherwise. Task lists must be identical for base and tuned.",
+  "base_tasks": ["<task names exactly as run>"],
+  "tuned_tasks": ["<task names exactly as run>"],
+  "base":  {"id": [0.0], "jv": [0.0], "su": [0.0]},
+  "tuned": {"id": [0.0], "jv": [0.0], "su": [0.0]}
+}

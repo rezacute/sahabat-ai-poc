@@ -1,0 +1,8 @@
+# torch is installed separately from the CUDA 12.8 index (see setup.sh)
+transformers>=4.46
+peft>=0.13
+trl>=0.20
+accelerate>=1.0
+datasets>=3.0
+bitsandbytes>=0.45   # only used for the optional QLoRA (70B) run
+pyyaml

@@ -1,0 +1,23 @@
+# Training config. Chosen once before training; not tuned against the eval sets.
+
+base_model: GoToCompany/gemma2-9b-cpt-sahabatai-v1-instruct
+train_file: data/train/safety_sft.jsonl
+output_dir: runs/sft-v1
+
+# On a 96 GB RTX PRO 6000 the 9B model fits in bf16, so no 4-bit quantization is needed.
+# Set qlora: true only for the optional 70B stretch run.
+qlora: false
+
+lora:
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules: all-linear
+
+epochs: 2
+batch_size: 4
+grad_accum: 4
+lr: 1.0e-4
+warmup_ratio: 0.05
+max_length: 2048
+seed: 20260928
