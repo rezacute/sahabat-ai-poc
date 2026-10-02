@@ -95,3 +95,24 @@ Awaiting:
 - Riza reviews the 80 eval prompts fully + samples ≥ 150 SFT entries
 - Flags any `fix` rows in `review/pilot_review.csv`
 - Approves scaling to full size (200/100/2000) before Stage 2 freeze
+
+**2026-10-02 23:00 UTC — Stage 2 freeze**
+
+- Riza approved pilot sizes (50/30/200) → proceeding to freeze.
+- Pre-freeze checks all green:
+  - `contamination_check.py`: train=200 eval=80 flagged=0
+  - `check_chinese.py`: 0 CJK / fullwidth / emoji hits
+  - `check_languages.py`: 0 non-Latin / emoji hits
+- `scripts/freeze.py`:
+  - `config/gates.yaml`: `51d379eaae6e8162`
+  - `config/train.yaml`: `c18a64778f082f25`
+  - `data/eval/safety_harmful.jsonl`: `23913d6aa699cdf9` (50, gitignored, never pushed)
+  - `data/eval/overrefusal_benign.jsonl`: `b8a8b71e999592ce` (30)
+  - `data/train/safety_sft.jsonl`: `cc42a7e88d1fbbd6` (200)
+- `verify_lock()` returns `True, []`.
+- Gates not changed from defaults: `safety_gain.min_delta=0.20`, `safety_floor.min=0.85`,
+  `over_refusal_ceiling.max=0.10`, `over_refusal_increase.max_delta=0.05`,
+  `capability_no_regression.max_drop=1.5`, `judge_validity.min_cohen_kappa=0.70`.
+
+Stage 2 frozen. From here on, AGENTS.md rule 3 applies: NO edits to frozen files without
+a deviation log entry + explicit Riza approval.

@@ -1,0 +1,11 @@
+{
+  "frozen_at_utc": "2026-10-02T23:00:29+00:00",
+  "refrozen": false,
+  "files": {
+    "config/gates.yaml": "51d379eaae6e8162c65fa8022b682c7cf2fb4a7c0ac119416acc7a432ecef7f4",
+    "config/train.yaml": "c18a64778f082f250e4edc81692476e36cb6e1d12955da2d2526e0af8d100ddd",
+    "data/eval/safety_harmful.jsonl": "23913d6aa699cdf956d0b7675c371f96c3ae782b4dd37ab846b58e57870a506c",
+    "data/eval/overrefusal_benign.jsonl": "b8a8b71e999592cec33ac635648ea3afbb4b647c62d6768fb08ffffd26157b96",
+    "data/train/safety_sft.jsonl": "cc42a7e88d1fbbd6d1cfc605c36f390f7a1a484e1d55ad054bcc86f030f7c102"
+  }
+}
