@@ -166,3 +166,25 @@ Next step: SEA-HELM base evaluation via `scripts/run_seahelm.sh`.
 - This is the canonical score SEA-HELM reports; my per-task accuracy mean (78.564) is a different metric (raw accuracy vs normalized balanced accuracy) and should not be used for the gate.
 - `results/capability.json` updated: `base.id=[34.002]`, `base_per_competency_id.safety=34.002`, others 0.0 (task-failed) or null (crash-prevented).
 - jv/su remain null (not in SEA-HELM snapshot).
+
+**2026-10-03 04:38 UTC — Stage 4 LoRA fine-tune + merge**
+
+- `scripts/train_sft.py --config config/train.yaml`:
+  - Fixed TRL 1.14.0 incompatibility: `warmup_ratio` -> `warmup_steps` (precomputed = 1 for pilot).
+  - 200 rows / effective batch 16 = 12 steps/epoch × 2 epochs = 24 steps total.
+  - **Training time: 48 seconds.** Loss 1.199 -> 0.760 -> 0.896 (avg). mean_token_accuracy 0.729 -> 0.791 -> 0.828.
+  - Adapter saved to `runs/sft-v1/final/` (216 MB safetensors).
+- `scripts/merge_adapter.py --base ... --adapter runs/sft-v1/final --out merged/sft-v1`:
+  - Fixed transformers GenerationConfig bug: `cache_implementation=hybrid` set by training but `use_cache=False` made save refuse. Cleared `generation_config.cache_implementation`.
+  - **Merge time: 2 minutes** (1 shard, 18.4 GB bf16).
+  - Output: `merged/sft-v1/{config.json, model.safetensors, tokenizer.json, generation_config.json, chat_template.jinja}`.
+
+`runs/` and `merged/` are gitignored. Adapter weights + final loss_history.json remain local.
+
+| Final metric | Value |
+|---|---|
+| train_runtime | 48.54 s |
+| train_loss (avg) | 0.896 |
+| mean_token_accuracy (final) | 0.828 |
+| final grad_norm | 1.110 |
+| final entropy | 0.935 |
