@@ -53,6 +53,12 @@ def main():
     ds = load_dataset("json", data_files=cfg["train_file"], split="train")
     ds = ds.select_columns(["prompt", "completion"]).shuffle(seed=cfg["seed"])
 
+    # Convert warmup_ratio (fraction of total steps) to warmup_steps (integer)
+    # for TRL 1.x, which removed warmup_ratio from SFTConfig.
+    eff_batch = cfg["batch_size"] * cfg["grad_accum"]
+    total_steps = max(1, (len(ds) // eff_batch)) * cfg["epochs"]
+    cfg["warmup_steps"] = max(1, int(round(cfg["warmup_ratio"] * total_steps)))
+
     lora = cfg["lora"]
     peft_cfg = LoraConfig(
         r=lora["r"],
@@ -69,7 +75,7 @@ def main():
         gradient_accumulation_steps=cfg["grad_accum"],
         learning_rate=cfg["lr"],
         lr_scheduler_type="cosine",
-        warmup_ratio=cfg["warmup_ratio"],
+        warmup_steps=int(cfg["warmup_steps"]),  # TRL 1.x removed warmup_ratio; precompute in main()
         logging_steps=10,
         save_strategy="epoch",
         bf16=True,
