@@ -159,3 +159,10 @@ Next step: SEA-HELM base evaluation via `scripts/run_seahelm.sh`.
 - G6 (judge_validity): not measurable yet (need judge + human audit)
 
 **Stage 3 baseline responses and capability populated. Ready for Stage 4 (LoRA fine-tune).**
+
+**2026-10-03 01:55 UTC — capability.json revised with SEA-HELM's canonical normalized score**
+
+- SEA-HELM's per-competency aggregate printed `id_safety=34.002` (from log line `Overall normalized score for <id_safety>: 34.001932`).
+- This is the canonical score SEA-HELM reports; my per-task accuracy mean (78.564) is a different metric (raw accuracy vs normalized balanced accuracy) and should not be used for the gate.
+- `results/capability.json` updated: `base.id=[34.002]`, `base_per_competency_id.safety=34.002`, others 0.0 (task-failed) or null (crash-prevented).
+- jv/su remain null (not in SEA-HELM snapshot).
