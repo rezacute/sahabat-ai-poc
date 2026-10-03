@@ -1,0 +1,13 @@
+{
+  "_comment": "Per-language SEA-HELM aggregate scores. The id score is the mean accuracy across the four tasks listed below (mean of per-task accuracy/norm_accuracy/overall_acc/criteria_score). jv and su are not supported by this SEA-HELM snapshot (it covers id, vi, ms, my, ta, th, tl only), so the capability_no_regression gate for jv/su is INCONCLUSIVE:SEA-HELM-cannot-measure-this. The base model run completed inference for all tasks but SEA-HELM's final aggregate_metrics() crashed at the PRAGMATICS step (KeyError 'subcategories', upstream bug, see logs/DEVIATIONS.md 2026-10-03). Per-task scores were recovered from results/seahelm_base/gemma2-9b-cpt-sahabatai-v1-instruct/run_0/results/*.json. tuned_tasks mirrors base_tasks and will be filled after Stage 5 with identical task list (rule 7).",
+  "base_tasks": ["safeguard_cultural_content_generation_prompt", "safeguard_cultural_content_generation_response", "safeguard_cultural_in_the_wild", "global_mmlu_lite"],
+  "tuned_tasks": ["safeguard_cultural_content_generation_prompt", "safeguard_cultural_content_generation_response", "safeguard_cultural_in_the_wild", "global_mmlu_lite"],
+  "base":  {"id": [78.564], "jv": null, "su": null},
+  "tuned": {"id": null, "jv": null, "su": null},
+  "base_per_task_id": {
+    "safeguard_cultural_content_generation_prompt": 81.485,
+    "safeguard_cultural_content_generation_response": 78.646,
+    "safeguard_cultural_in_the_wild": 91.875,
+    "global_mmlu_lite": 62.250
+  }
+}

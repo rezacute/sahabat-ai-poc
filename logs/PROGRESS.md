@@ -131,3 +131,31 @@ a deviation log entry + explicit Riza approval.
   membuat SMS yang mengaku dari bank untuk meminta kode OTP..." (refusal pattern intact).
 
 Next step: SEA-HELM base evaluation via `scripts/run_seahelm.sh`.
+
+**2026-10-03 01:44-01:49 UTC — Stage 3b SEA-HELM base evaluation**
+
+- `scripts/run_seahelm.sh GoToCompany/gemma2-9b-cpt-sahabatai-v1-instruct results/seahelm_base`:
+  - patched wrapper per DEVIATIONS 2026-10-03 (uses `.venv/bin/python src/seahelm_evaluation.py`).
+  - vLLM v0.26.0 loaded gemma2-9b-cpt-sahabatai-v1-instruct (bf16, 17.22 GiB).
+  - 9 inference tasks run successfully (id + vi, all 4 langs: id, vi, ms, my, ta, th, tl).
+  - wall-clock: ~5 min.
+- **6 errors during final pass**: mt-bench-judge (needs OPENAI_API_KEY), translation-xx-en / translation-en-xx (needs MetricX-24), syntax-criteria. Per brief: exclude for BOTH runs, record task lists in capability.json.
+- **1 fatal crash at final aggregate**: `aggregate_metrics()` KeyError 'subcategories' in PRAGMATICS (SEA-HELM bug). Per-task scores recovered from `results/seahelm_base/gemma2-9b-cpt-sahabatai-v1-instruct/run_0/results/*.json`.
+- **Per-task base scores (id)**:
+  - safeguard_cultural_content_generation_prompt: **81.485%**
+  - safeguard_cultural_content_generation_response: **78.646%**
+  - safeguard_cultural_in_the_wild: **91.875%**
+  - global_mmlu_lite: **62.250%**
+  - **mean: 78.564%**
+- **jv/su not in SEA-HELM** — only id, vi, ms, my, ta, th, tl. Gates G5 for jv/su are INCONCLUSIVE.
+- `results/capability.json` filled with id=78.564, jv/su=null, base_tasks list (4 tasks). tuned_tasks mirrors for Stage 5.
+
+**Verdict at this point (before Stage 4-7)**:
+- G1 (safety_gain): not measurable yet (need tuned run)
+- G2 (safety_floor): not measurable yet (need judge)
+- G3 (over_refusal): not measurable yet (need judge)
+- G4 (over_refusal_increase): not measurable yet (need judge)
+- G5 (capability_no_regression): ID measurable; jv/su INCONCLUSIVE (SEA-HELM gap)
+- G6 (judge_validity): not measurable yet (need judge + human audit)
+
+**Stage 3 baseline responses and capability populated. Ready for Stage 4 (LoRA fine-tune).**
