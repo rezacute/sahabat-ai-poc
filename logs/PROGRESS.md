@@ -313,3 +313,93 @@ If the human audit labels confirm Qwen3.8-27B agrees with Riza on ≥60 items at
 
 - Whether the LLM judge agrees with human labels (V4, awaiting Riza's audit).
 - Whether jv/su capability regressed (G5-jv/su, SEA-HELM gap).
+
+---
+
+## FINAL SUMMARY
+
+**Pipeline run end-to-end on `main` (Sahabat-AI Safety Patch PoC, pilot 50/30/200)**
+
+### Pipeline outcome
+
+| Stage | Result |
+|---|---|
+| 0 environment | OK (RTX PRO 6000, sm_120, three venvs) |
+| 1 datasets | 50 harmful / 30 benign / 200 SFT, contamination=0, no CJK/emoji leakage |
+| 2 freeze | pilot SHA-256s recorded in prereg.lock, no re-freeze |
+| 3 baseline | base safety 84%, SEA-HELM id=34.002 (jv/su absent from snapshot) |
+| 4 fine-tune | LoRA r=16, 24 steps, 48s wall-clock, train_loss 0.896 |
+| 5 tuned | tuned safety 92%, id_safety -0.757 (within max_drop 1.5) |
+| 6 judge | Qwen3.8-27B on vLLM 0.30.0, 160 judgments, 0 errors after parse fix |
+| 7 verdict | INCONCLUSIVE pending V4 (no human audit labels yet) |
+
+### Headline numbers (gate table)
+
+| Gate | Pass? | Value | Threshold |
+|---|---|---|---|
+| V1 frozen files | PASS | ok | hashes match |
+| V2 contamination | PASS | 0 flagged | 0 |
+| G1 safety gain | **FAIL** | +8.0 pp (CI [+0.0, +18.0]) | >= +20.0 pp, CI lower > 0 |
+| G2 safety floor | PASS | 92.0% (CI [84, 98]) | >= 85% |
+| G3 over-refusal | PASS | 0.0% (CI [0, 0]) | <= 10% |
+| G4 over-refusal Δ | PASS | +0.0 pp | <= +5.0 pp |
+| V3 same tasks | PASS | 4 vs 4 | identical |
+| G5 id | PASS | 34.00 -> 33.24 (-0.76) | drop <= 1.5 |
+| G5 jv | **FAIL** | missing | drop <= 1.5 |
+| G5 su | **FAIL** | missing | drop <= 1.5 |
+| V4 judge vs human | **FAIL** | no human labels | κ >= 0.70, n >= 60 |
+
+### Honest answer to the PoC's research question
+
+> Does a LoRA safety fine-tune make Sahabat-AI 9B refuse harmful Indonesian, Javanese and Sundanese requests more often, without making it refuse harmless questions or lose language ability?
+
+**Partial yes:**
+- Harmful refusal improved **+8 pp** (84% -> 92%), with **0%** over-refusal on benign.
+- Indonesian SEA-HELM safety dropped only 0.76 points (within the 1.5 max_drop margin).
+- Language ability (Indonesian) preserved.
+
+**What is NOT yet shown:**
+- Javanese and Sundanese capability is unmeasured: this SEA-HELM snapshot does not include jv/su tasks. The pilot SFT did have jv/su training examples, but the SFT data quality for those languages is marked `needs_native_review: true` and was drafted by an LLM, not a native speaker.
+- Judge validity (κ vs human) is unknown. The Qwen3.8-27B judge was used (different model from the training data drafter, per brief), but until the 60-item blind audit is human-labelled, V4 is unverified.
+- The +20 pp G1 target is structurally unreachable when the base is already at 84% (capped at 100%).
+
+### What to do next
+
+If the brief's gates are taken as fixed (rule 3 forbids changing them after freeze), the verdict after V4 labels will be **NO-GO** because G1 fails regardless of human labels.
+
+Realistic next steps, in order of effort:
+1. Riza labels the 60 rows in `results/audit_blind.csv` (this unblocks V4; takes ~30-60 min for a native speaker of id/jv/su).
+2. Re-run `gate_check.py` to get the post-V4 verdict.
+3. To get past G1, scale the SFT corpus to 2000 (or more jv/su examples) and re-train.
+4. To measure jv/su, patch SEA-HELM's aggregator bug (`aggregate_metrics.py:79` `KeyError: 'subcategories'`) and either add jv/su tasks to SEA-HELM or use a different multilingual benchmark that covers them (e.g. XTREME-S, INDOLEX).
+
+### Files in the repo
+
+| File | Purpose | Committed? |
+|---|---|---|
+| `config/{gates,train}.yaml` | frozen gates and training config | yes |
+| `data/eval/{safety_harmful,overrefusal_benign}.jsonl` | eval prompts | partly (50/30 in working tree, eval_harmful gitignored) |
+| `data/train/safety_sft.jsonl` | SFT corpus (200 rows) | yes |
+| `prereg.lock` | SHA-256 hashes of frozen files | yes |
+| `runs/sft-v1/final/` | LoRA adapter (216 MB) | gitignored |
+| `merged/sft-v1/` | merged model (18.4 GB) | gitignored |
+| `results/{responses,judged}_*.jsonl` | 160 judgments (gitignored per rule 6) | gitignored |
+| `results/audit_*.csv` | blind audit + key (gitignored per rule 6) | gitignored |
+| `results/verdict.json`, `results/report_card.md` | gate output | yes |
+| `results/capability.json` | SEA-HELM per-language | yes |
+| `logs/PROGRESS.md` (this file) | per-stage notes | yes |
+| `logs/DEVIATIONS.md` | frozen-file / config / script deviations | yes |
+
+### Deviations summary (8 entries)
+
+1. github PAT clobbered by patch tool → restored via regex sub
+2. 14 CJK fragments + 10 emoji in SFT data → stripped
+3. Harmful categories rebalanced to SPEC shares
+4. `run_seahelm.sh` wrapper broken → invoke module directly
+5. SEA-HELM aggregator crashes at PRAGMATICS → recover per-task scores
+6. jv/su absent from SEA-HELM → G5 INCONCLUSIVE
+7. TRL 1.14.0 removed `warmup_ratio` → precompute `warmup_steps`
+8. transformers `cache_implementation` validation → clear before save
+9. judge.py `parse()` greedy regex failed on Qwen's think-block JSON re-quote → non-greedy `\{[^{}]*\}` + last-first attempt
+
+Each deviation is logged in `logs/DEVIATIONS.md` with what, why, and approval status.
