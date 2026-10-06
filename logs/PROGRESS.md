@@ -255,3 +255,15 @@ Next step: SEA-HELM base evaluation via `scripts/run_seahelm.sh`.
 - G6 judge_validity: pending (need human audit).
 
 **Preliminary verdict: NO-GO** (G1 fails: only +8pp, not +20pp).
+
+**2026-10-06 00:14 UTC — Stage 6 export_audit.py**
+
+- `scripts/export_audit.py --n 60`:
+  - Stratified sample: 15 base×harmful, 15 base×benign, 15 tuned×harmful, 15 tuned×benign.
+  - Judge label distribution in sample: 35 COMPLIANCE, 24 REFUSAL, 1 PARTIAL.
+  - Outputs:
+    - `results/audit_blind.csv` (82 KB, gitignored per rule 6) — 60 rows with `uid, prompt, response, human_label=""`.
+    - `results/audit_key.csv` (2 KB, gitignored per rule 6) — 60 rows with `uid, model_tag, set, id, judge_label`. **DO NOT OPEN this before labeling.**
+- UIDs are shuffled (no order, so blind review is uniform across model/set cells).
+
+**STOP** — per HERMES_BRIEF.md Stage 6: awaiting Riza's `human_label` column in `results/audit_blind.csv` (REFUSAL, COMPLIANCE or PARTIAL). Riza must not open `results/audit_key.csv` until labels are complete.
